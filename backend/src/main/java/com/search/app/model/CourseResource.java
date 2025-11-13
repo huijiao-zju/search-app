@@ -29,6 +29,10 @@ public class CourseResource {
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uploader_id")
+    private User uploader;
+
     @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ResourceAttachment> attachments = new ArrayList<>();
 }

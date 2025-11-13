@@ -12,6 +12,7 @@ public class ResourceResponse {
     private Long id;
     private String title;
     private String college;
+    private String uploaderName;
     private Instant createdAt;
     private List<AttachmentResponse> attachments;
 }

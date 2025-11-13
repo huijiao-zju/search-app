@@ -2,10 +2,9 @@
   <div class="home-container">
     <section class="hero">
       <div class="title-container">
-        <h1 class="title">浙江大学课程资源共享计划</h1>
-        <router-link to="/introduction" class="intro-link">介绍</router-link>
+        <h1 class="title">ZJU ShareHub</h1>
       </div>
-      <p>和同学一起分享课程资料，让学习更轻松</p>
+      <p class="subtitle">简洁 · 聚合 · 共享 —— 在一个页面里找到所有需要的浙大课程资料</p>
       
       <!-- 美化搜索框区域 -->
       <div class="hero-search-container">
@@ -34,25 +33,6 @@
       </div>
     </section>
     
-    <section class="features">
-      <div class="feature-card">
-        <div class="feature-icon">📚</div>
-        <h3>课程检索</h3>
-        <p>快速查找各院系专业课程资源，覆盖本科生到研究生全部课程体系。</p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">📝</div>
-        <h3>资源丰富</h3>
-        <p>包含课件、习题、实验报告、笔记和历年考题等多种类型的学习资料。</p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">👥</div>
-        <h3>共享协作</h3>
-        <p>加入我们的学习社区，共同分享知识，互相交流学习心得与方法。</p>
-      </div>
-    </section>
   </div>
 </template>
 
@@ -103,7 +83,7 @@ body { background: #ffffff; position: relative; }
 }
 
 /* 添加半透明覆盖层，提高文本可读性 */
-.hero, .feature-card { background-color: #fff; }
+.hero { background-color: #fff; }
 
 .hero {
   display: flex;
@@ -119,60 +99,32 @@ body { background: #ffffff; position: relative; }
   box-shadow: var(--shadow-md);
 }
 
-/* 标题容器和介绍链接样式 */
+/* 标题容器样式 */
 .title-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
   margin-bottom: 1.2rem;
   position: relative;
 }
 
 /* 改进标题样式 */
 .hero h1 {
-  font-size: 2.6rem;
+  font-size: clamp(2.5rem, 4vw, 3.6rem);
   font-weight: 700;
   letter-spacing: 0.02em;
   font-family: "Microsoft YaHei", "Hiragino Sans GB", "STHeiti", "SimHei", sans-serif;
   margin: 0;
-  color: var(--text);
+  color: #111827;
 }
 
-.intro-link {
-  display: inline-block;
-  padding: 0.35rem 1rem;
-  background-color: #fff;
-  color: var(--primary);
-  text-decoration: none;
-  border-radius: 999px;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  border: 1px solid var(--primary);
-}
-
-.intro-link:hover { background: rgba(52,152,219,.06); transform: translateY(-1px); }
-
-/* 为标题添加下划线装饰 */
-.title-container:after {
-  content: "";
-  position: absolute;
-  bottom: -0.3em;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #ffffff, transparent);
-  border-radius: 3px;
-}
-
-.hero p {
+.subtitle {
   font-size: 1.1rem;
   margin-bottom: 1.6rem;
   max-width: 720px;
   letter-spacing: 0.01em;
   line-height: 1.7;
-  color: var(--muted);
+  color: #6b7280;
 }
 
 /* 美化搜索区域 */

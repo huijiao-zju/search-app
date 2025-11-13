@@ -8,18 +8,22 @@ import com.search.app.model.ResourceAttachment;
 import com.search.app.model.enums.AttachmentCategory;
 import com.search.app.repository.CourseResourceRepository;
 import com.search.app.repository.ResourceAttachmentRepository;
+import com.search.app.repository.UserRepository;
 import com.search.app.service.FileStorageService;
 import com.search.app.service.ResourceSearchService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +40,7 @@ import java.util.stream.Collectors;
 public class ResourceController {
 
     private static final long MAX_FILE_SIZE = 50L * 1024 * 1024; // 50MB per file
+    private static final String SUPER_DELETER = "testqwq";
 
     @Autowired
     private CourseResourceRepository resourceRepository;
@@ -49,6 +53,9 @@ public class ResourceController {
 
     @Autowired
     private ResourceSearchService searchService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
@@ -71,9 +78,13 @@ public class ResourceController {
         if (college != null) {
             resource.setCollege(college.trim());
         }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            userRepository.findByUsername(authentication.getName()).ifPresent(resource::setUploader);
+        }
+
         resource = resourceRepository.save(resource);
 
-        List<AttachmentResponse> attachmentResponses = new ArrayList<>();
         for (int i = 0; i < files.size(); i++) {
             MultipartFile file = files.get(i);
             FileStorageService.StoredFile saved = storageService.store(file, MAX_FILE_SIZE);
@@ -89,26 +100,18 @@ public class ResourceController {
             }
             att.setCategory(cat);
             attachmentRepository.save(att);
-
-            attachmentResponses.add(new AttachmentResponse(att.getId(), att.getOriginalName(), att.getContentType(), att.getSize(), cat.name()));
+            resource.getAttachments().add(att);
         }
 
-        ResourceResponse resp = new ResourceResponse(resource.getId(), resource.getTitle(), resource.getCollege(), resource.getCreatedAt(), attachmentResponses);
+        ResourceResponse resp = toResponse(resource);
         return ResponseEntity.ok(resp);
     }
 
     @GetMapping
     public List<ResourceResponse> list() {
-        return resourceRepository.findAll().stream().map(r -> new ResourceResponse(
-                r.getId(),
-                r.getTitle(),
-                r.getCollege(),
-                r.getCreatedAt(),
-                r.getAttachments().stream().map(a -> new AttachmentResponse(
-                        a.getId(), a.getOriginalName(), a.getContentType(), a.getSize(),
-                        (a.getCategory() != null ? a.getCategory().name() : AttachmentCategory.NOTE.name())
-                )).collect(Collectors.toList())
-        )).collect(Collectors.toList());
+        return resourceRepository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/search")
@@ -128,15 +131,37 @@ public class ResourceController {
 
         Page<CourseResource> resultPage = searchService.search(q, mode, sort, pageable);
 
-        List<ResourceResponse> content = resultPage.getContent().stream().map(r -> new ResourceResponse(
-                r.getId(), r.getTitle(), r.getCollege(), r.getCreatedAt(),
-                r.getAttachments().stream().map(a -> new AttachmentResponse(
-                        a.getId(), a.getOriginalName(), a.getContentType(), a.getSize(),
-                        (a.getCategory() != null ? a.getCategory().name() : AttachmentCategory.NOTE.name())
-                )).collect(Collectors.toList())
-        )).collect(Collectors.toList());
+        List<ResourceResponse> content = resultPage.getContent().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
 
         return new PageResponse<>(content, pageIndex + 1, size, resultPage.getTotalElements(), resultPage.getTotalPages());
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<?> delete(@PathVariable Long id) throws IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未登录");
+        }
+        String username = authentication.getName();
+        if (!SUPER_DELETER.equalsIgnoreCase(username)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("无权限删除该资源");
+        }
+
+        CourseResource resource = resourceRepository.findById(id).orElse(null);
+        if (resource == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (resource.getAttachments() != null) {
+            for (ResourceAttachment attachment : resource.getAttachments()) {
+                storageService.delete(attachment.getStoredName());
+            }
+        }
+        resourceRepository.delete(resource);
+        return ResponseEntity.noContent().build();
     }
 
     private AttachmentCategory resolveCategory(List<String> categories, int index) {
@@ -172,5 +197,19 @@ public class ResourceController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + filename)
                 .contentLength(att.getSize())
                 .body(file);
+    }
+
+    private ResourceResponse toResponse(CourseResource resource) {
+        List<AttachmentResponse> attachmentResponses = resource.getAttachments().stream()
+                .map(a -> new AttachmentResponse(
+                        a.getId(),
+                        a.getOriginalName(),
+                        a.getContentType(),
+                        a.getSize(),
+                        (a.getCategory() != null ? a.getCategory().name() : AttachmentCategory.NOTE.name())
+                ))
+                .collect(Collectors.toList());
+        String uploaderName = resource.getUploader() != null ? resource.getUploader().getUsername() : null;
+        return new ResourceResponse(resource.getId(), resource.getTitle(), resource.getCollege(), uploaderName, resource.getCreatedAt(), attachmentResponses);
     }
 }

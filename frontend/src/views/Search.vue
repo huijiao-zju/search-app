@@ -25,7 +25,10 @@
     <div v-else class="search-results">
       <div v-for="(result, index) in searchResults" :key="index" class="result-card">
         <h3>{{ result.title }}</h3>
-        <div v-if="result.college" class="college">{{ result.college }}</div>
+        <div class="meta">
+          <span v-if="result.college" class="college">{{ result.college }}</span>
+          <span v-if="result.uploaderName" class="uploader">由 {{ result.uploaderName }} 上传</span>
+        </div>
         <div class="result-description">
           <template v-if="result.attachments && result.attachments.length">
             <div class="attachment" v-for="a in result.attachments" :key="a.id">
@@ -215,6 +218,19 @@ watch(() => route.query, updateSearch, { deep: true });
 
 .result-card h3 {
   margin: 0 0 0.75rem 0;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.meta .uploader {
+  color: #6b7280;
 }
 
 .result-card h3 a {

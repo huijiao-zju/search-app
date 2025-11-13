@@ -12,7 +12,6 @@ import Login from './views/Login.vue'
 import Register from './views/Register.vue'
 import Search from './views/Search.vue'
 import NotFound from './views/NotFound.vue'
-import Introduction from './views/Introduction.vue' // 新增导入介绍页面组件
 import Upload from './views/Upload.vue'
 import Resources from './views/Resources.vue'
 
@@ -32,7 +31,6 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/search', component: Search },
-  { path: '/introduction', component: Introduction }, // 新增介绍页面路由
   { path: '/resources', component: Resources, meta: { requiresAuth: true } },
   { path: '/upload', component: Upload, meta: { requiresAuth: true } },
   { path: '/:pathMatch(.*)*', component: NotFound }

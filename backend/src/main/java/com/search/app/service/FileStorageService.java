@@ -53,6 +53,16 @@ public class FileStorageService {
         return new InputStreamResource(Files.newInputStream(file, StandardOpenOption.READ));
     }
 
+    public void delete(String storedName) throws IOException {
+        if (!StringUtils.hasText(storedName)) {
+            return;
+        }
+        Path file = storageDir.resolve(storedName).normalize();
+        if (!file.startsWith(storageDir)) {
+            throw new IOException("非法文件路径");
+        }
+        Files.deleteIfExists(file);
+    }
+
     public record StoredFile(String originalName, String storedName, String contentType, long size) {}
 }
-
