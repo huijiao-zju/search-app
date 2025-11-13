@@ -10,6 +10,19 @@
       </div>
 
       <div class="form-group">
+        <label for="college">学院</label>
+        <input id="college" v-model.trim="college" type="text" required placeholder="例如：数学科学学院" />
+      </div>
+
+      <div class="form-group">
+        <label for="type">类型</label>
+        <select id="type" v-model="selectedType">
+          <option value="NOTE">学习笔记</option>
+          <option value="EXAM">回忆卷</option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label for="files">附件</label>
         <input id="files" type="file" multiple @change="onFiles" />
         <ul v-if="selectedFiles.length" class="file-list">
@@ -20,11 +33,7 @@
               <span v-if="f.size > MAX_BYTES" class="bad"> 超过50MB</span>
             </div>
             <div class="file-meta">
-              <label>分类</label>
-              <select v-model="fileCategories[i]">
-                <option value="NOTE">学习笔记</option>
-                <option value="EXAM">历年卷</option>
-              </select>
+              <span class="tag">{{ selectedType === 'EXAM' ? '回忆卷' : '学习笔记' }}</span>
             </div>
           </li>
         </ul>
@@ -46,7 +55,8 @@ import axios from 'axios'
 const MAX_BYTES = 50 * 1024 * 1024
 const title = ref('')
 const selectedFiles = ref([])
-const fileCategories = ref([])
+const selectedType = ref('NOTE')
+const college = ref('')
 const submitting = ref(false)
 const error = ref('')
 const success = ref(null)
@@ -60,7 +70,6 @@ const invalid = computed(() => {
 const onFiles = (e) => {
   const files = Array.from(e.target.files || [])
   selectedFiles.value = files
-  fileCategories.value = files.map(() => 'NOTE')
 }
 
 const formatSize = (n) => {
@@ -78,9 +87,10 @@ const submit = async () => {
   }
   const form = new FormData()
   form.append('title', title.value.trim())
-  selectedFiles.value.forEach((f, idx) => {
+  form.append('college', college.value.trim())
+  form.append('type', selectedType.value)
+  selectedFiles.value.forEach((f) => {
     form.append('files', f)
-    form.append('categories', fileCategories.value[idx] || 'NOTE')
   })
   submitting.value = true
   try {
@@ -90,8 +100,9 @@ const submit = async () => {
     success.value = res.data
     // 清空
     title.value = ''
+    college.value = ''
+    selectedType.value = 'NOTE'
     selectedFiles.value = []
-    fileCategories.value = []
   } catch (e) {
     error.value = e.response?.data || '上传失败，请稍后再试'
   } finally {

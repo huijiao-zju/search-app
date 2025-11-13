@@ -11,12 +11,14 @@
         />
         <button @click="handleSearch" class="search-button">搜索</button>
       </div>
-      <nav>
-        <router-link to="/" class="nav-link">首页</router-link>
-        <router-link v-if="!isLoggedIn" to="/login" class="nav-link">登录</router-link>
-        <router-link v-if="!isLoggedIn" to="/register" class="nav-link">注册</router-link>
-        <router-link v-if="isLoggedIn" to="/resources" class="nav-link">资源</router-link>
-        <router-link v-if="isLoggedIn" to="/upload" class="nav-link">上传</router-link>
+      <div class="header-right">
+        <nav>
+          <router-link to="/" class="nav-link">首页</router-link>
+          <router-link v-if="!isLoggedIn" to="/login" class="nav-link">登录</router-link>
+          <router-link v-if="!isLoggedIn" to="/register" class="nav-link">注册</router-link>
+          <router-link v-if="isLoggedIn" to="/resources" class="nav-link">资源</router-link>
+          <router-link v-if="isLoggedIn" to="/upload" class="nav-link">上传</router-link>
+        </nav>
         <div v-if="isLoggedIn" class="user-area">
           <button class="user-badge" @click="menuOpen = !menuOpen">
             {{ currentUser?.username || currentUser?.email }}
@@ -28,7 +30,7 @@
             <button class="menu-item danger" @click="logoutAndClose">退出登录</button>
           </div>
         </div>
-      </nav>
+      </div>
     </header>
     <main>
       <router-view />
@@ -165,6 +167,7 @@ footer {
 }
 
 /* User area (right side) */
+.header-right { display: flex; align-items: center; gap: 0.75rem; }
 .user-area { position: relative; margin-left: .25rem; }
 .user-badge {
   display: inline-flex;

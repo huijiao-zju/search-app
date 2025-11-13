@@ -54,6 +54,8 @@ public class ResourceController {
     @Transactional
     public ResponseEntity<?> upload(
             @RequestPart("title") @NotBlank String title,
+            @RequestPart(value = "college", required = false) String college,
+            @RequestPart(value = "type", required = false) String type,
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
             @RequestPart(value = "categories", required = false) List<String> categories
     ) throws IOException {
@@ -66,6 +68,9 @@ public class ResourceController {
 
         CourseResource resource = new CourseResource();
         resource.setTitle(title.trim());
+        if (college != null) {
+            resource.setCollege(college.trim());
+        }
         resource = resourceRepository.save(resource);
 
         List<AttachmentResponse> attachmentResponses = new ArrayList<>();
@@ -79,13 +84,16 @@ public class ResourceController {
             att.setContentType(saved.contentType());
             att.setSize(saved.size());
             AttachmentCategory cat = resolveCategory(categories, i);
+            if (cat == null) {
+                cat = resolveType(type);
+            }
             att.setCategory(cat);
             attachmentRepository.save(att);
 
             attachmentResponses.add(new AttachmentResponse(att.getId(), att.getOriginalName(), att.getContentType(), att.getSize(), cat.name()));
         }
 
-        ResourceResponse resp = new ResourceResponse(resource.getId(), resource.getTitle(), resource.getCreatedAt(), attachmentResponses);
+        ResourceResponse resp = new ResourceResponse(resource.getId(), resource.getTitle(), resource.getCollege(), resource.getCreatedAt(), attachmentResponses);
         return ResponseEntity.ok(resp);
     }
 
@@ -94,6 +102,7 @@ public class ResourceController {
         return resourceRepository.findAll().stream().map(r -> new ResourceResponse(
                 r.getId(),
                 r.getTitle(),
+                r.getCollege(),
                 r.getCreatedAt(),
                 r.getAttachments().stream().map(a -> new AttachmentResponse(
                         a.getId(), a.getOriginalName(), a.getContentType(), a.getSize(),
@@ -120,7 +129,7 @@ public class ResourceController {
         Page<CourseResource> resultPage = searchService.search(q, mode, sort, pageable);
 
         List<ResourceResponse> content = resultPage.getContent().stream().map(r -> new ResourceResponse(
-                r.getId(), r.getTitle(), r.getCreatedAt(),
+                r.getId(), r.getTitle(), r.getCollege(), r.getCreatedAt(),
                 r.getAttachments().stream().map(a -> new AttachmentResponse(
                         a.getId(), a.getOriginalName(), a.getContentType(), a.getSize(),
                         (a.getCategory() != null ? a.getCategory().name() : AttachmentCategory.NOTE.name())
@@ -131,13 +140,21 @@ public class ResourceController {
     }
 
     private AttachmentCategory resolveCategory(List<String> categories, int index) {
-        if (categories == null || categories.isEmpty() || index >= categories.size()) return AttachmentCategory.NOTE;
+        if (categories == null || categories.isEmpty() || index >= categories.size()) return null;
         String raw = categories.get(index);
-        if (raw == null) return AttachmentCategory.NOTE;
+        if (raw == null) return null;
         String v = raw.trim().toUpperCase();
         // Accept English keys and common Chinese labels
         if (v.equals("NOTE") || v.equals("STUDY_NOTE") || v.contains("笔记")) return AttachmentCategory.NOTE;
-        if (v.equals("EXAM") || v.equals("PAST_PAPER") || v.contains("历年") || v.contains("试卷")) return AttachmentCategory.EXAM;
+        if (v.equals("EXAM") || v.equals("PAST_PAPER") || v.contains("历年") || v.contains("试卷") || v.contains("回忆")) return AttachmentCategory.EXAM;
+        return null;
+    }
+
+    private AttachmentCategory resolveType(String type) {
+        if (type == null) return AttachmentCategory.NOTE;
+        String v = type.trim().toUpperCase();
+        if (v.equals("NOTE") || v.contains("笔记")) return AttachmentCategory.NOTE;
+        if (v.equals("EXAM") || v.contains("回忆") || v.contains("历年") || v.contains("试卷")) return AttachmentCategory.EXAM;
         return AttachmentCategory.NOTE;
     }
 

@@ -11,7 +11,7 @@ import java.util.List;
 public class ResourceResponse {
     private Long id;
     private String title;
+    private String college;
     private Instant createdAt;
     private List<AttachmentResponse> attachments;
 }
-

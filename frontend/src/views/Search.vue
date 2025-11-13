@@ -25,11 +25,12 @@
     <div v-else class="search-results">
       <div v-for="(result, index) in searchResults" :key="index" class="result-card">
         <h3>{{ result.title }}</h3>
+        <div v-if="result.college" class="college">{{ result.college }}</div>
         <div class="result-description">
           <template v-if="result.attachments && result.attachments.length">
             <div class="attachment" v-for="a in result.attachments" :key="a.id">
               <span class="name">{{ a.name }}</span>
-              <span class="cat" :class="a.category">{{ a.category === 'EXAM' ? '历年卷' : '学习笔记' }}</span>
+              <span class="cat" :class="a.category">{{ a.category === 'EXAM' ? '回忆卷' : '学习笔记' }}</span>
               <span class="size">{{ (a.size/1024/1024).toFixed(2) }} MB</span>
               <button class="dl" @click="download(result.id, a)">下载</button>
             </div>
@@ -230,6 +231,7 @@ watch(() => route.query, updateSearch, { deep: true });
   margin-bottom: 1rem;
   line-height: 1.5;
 }
+.college { color: #3498db; font-size: .9rem; margin-top: .2rem; }
 /* category pill */
 .cat { font-size: .8rem; padding: .15rem .4rem; border-radius: 999px; border: 1px solid #e5e7eb; background: #f8fafc; color: #374151; margin-left: .4rem; }
 .cat.EXAM { border-color: rgba(231, 76, 60, .3); background: rgba(231, 76, 60, .08); color: #c0392b; }

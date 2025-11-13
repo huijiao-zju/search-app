@@ -23,10 +23,12 @@ public class CourseResource {
     @Column(nullable = false)
     private String title; // 课程名字
 
+    @Column
+    private String college; // 学院
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
     @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ResourceAttachment> attachments = new ArrayList<>();
 }
-

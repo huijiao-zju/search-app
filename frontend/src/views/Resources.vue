@@ -13,12 +13,13 @@
       <div class="resource-card" v-for="r in resources" :key="r.id">
         <div class="title-row">
           <h3>{{ r.title }}</h3>
+          <span v-if="r.college" class="college">{{ r.college }}</span>
           <span class="date">{{ formatDate(r.createdAt) }}</span>
         </div>
         <ul class="attachments">
           <li v-for="a in r.attachments" :key="a.id" class="attachment">
             <span class="name">{{ a.name }}</span>
-            <span class="cat" :class="a.category">{{ a.category === 'EXAM' ? '历年卷' : '学习笔记' }}</span>
+            <span class="cat" :class="a.category">{{ a.category === 'EXAM' ? '回忆卷' : '学习笔记' }}</span>
             <span class="size">{{ formatSize(a.size) }}</span>
             <button class="dl" @click="download(r.id, a)">下载</button>
           </li>
@@ -96,6 +97,7 @@ onMounted(fetchList)
 .title-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .5rem; }
 .title-row h3 { margin: 0; }
 .date { color: #888; font-size: .9rem; }
+.college { color: #3498db; font-size: .9rem; margin-left: .5rem; }
 .attachments { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
 .attachment { display: flex; gap: .75rem; align-items: center; }
 .name { flex: 1; }
