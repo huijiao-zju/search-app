@@ -56,18 +56,6 @@ const logout = () => {
 </script>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f5f5f5;
-  color: #333;
-}
-
 .app-container {
   display: flex;
   flex-direction: column;
@@ -75,13 +63,17 @@ body {
 }
 
 header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background-color: #3498db;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.85rem 2rem;
+  background: rgba(52, 152, 219, 0.9);
+  color: #fff;
+  backdrop-filter: saturate(120%) blur(6px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .logo {
@@ -123,15 +115,19 @@ nav {
 }
 
 .nav-link {
-  color: white;
+  color: #fff;
   text-decoration: none;
   padding: 0.5rem;
   border-radius: 4px;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.nav-link.router-link-active {
+  background-color: rgba(255, 255, 255, 0.22);
 }
 
 main {
@@ -146,6 +142,6 @@ footer {
   text-align: center;
   padding: 1rem;
   background-color: #333;
-  color: white;
+  color: #fff;
 }
 </style>

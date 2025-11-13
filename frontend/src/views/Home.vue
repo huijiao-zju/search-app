@@ -5,7 +5,7 @@
         <h1 class="title">浙江大学课程资源共享计划</h1>
         <router-link to="/introduction" class="intro-link">介绍</router-link>
       </div>
-      <p>汇集优质教学资源，助力求是学子的学术探索</p>
+      <p>和同学一起分享课程资料，让学习更轻松</p>
       
       <!-- 美化搜索框区域 -->
       <div class="hero-search-container">
@@ -21,7 +21,7 @@
             placeholder="搜索课程、资料或专业..." 
             class="hero-search-input"
           />
-          <button @click="handleSearch" class="hero-search-button">
+          <button @click="handleSearch" class="search-button">
             <span>搜索</span>
           </button>
         </div>
@@ -79,7 +79,6 @@ const quickSearch = (term) => {
 </script>
 
 <style>
-/* 关键修改：设置全屏背景样式 */
 html, body, #app {
   margin: 0;
   padding: 0;
@@ -88,27 +87,7 @@ html, body, #app {
   overflow-x: hidden;
 }
 
-body {
-  background-image: url('/images/background.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  position: relative;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('/images/background.jpg');
-  background-size: cover;
-  background-position: center;
-  z-index: -1;
-}
+body { background: #ffffff; position: relative; }
 
 /* 容器样式修改 */
 .home-container {
@@ -124,22 +103,20 @@ body::before {
 }
 
 /* 添加半透明覆盖层，提高文本可读性 */
-.hero, .feature-card {
-  backdrop-filter: blur(4px); /* 背景模糊效果 */
-  background-color: rgba(255, 255, 255, 0.7); /* 半透明白色背景 */
-}
+.hero, .feature-card { background-color: #fff; }
 
 .hero {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 3rem 1rem;
-  background: linear-gradient(135deg, #3498db, #2c3e50);
-  color: white;
-  border-radius: 12px;
+  padding: 2.5rem 1.25rem;
+  background: #fff;
+  color: var(--text);
+  border-radius: 16px;
   margin-bottom: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
 }
 
 /* 标题容器和介绍链接样式 */
@@ -154,32 +131,27 @@ body::before {
 
 /* 改进标题样式 */
 .hero h1 {
-  font-size: 2.8rem;
+  font-size: 2.6rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.02em;
   font-family: "Microsoft YaHei", "Hiragino Sans GB", "STHeiti", "SimHei", sans-serif;
   margin: 0;
+  color: var(--text);
 }
 
 .intro-link {
   display: inline-block;
-  padding: 0.3rem 1rem;
-  background-color: rgba(255, 255, 255, 0.3);
-  color: white;
+  padding: 0.35rem 1rem;
+  background-color: #fff;
+  color: var(--primary);
   text-decoration: none;
-  border-radius: 20px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 999px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  border: 1px solid var(--primary);
 }
 
-.intro-link:hover {
-  background-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
+.intro-link:hover { background: rgba(52,152,219,.06); transform: translateY(-1px); }
 
 /* 为标题添加下划线装饰 */
 .title-container:after {
@@ -195,12 +167,12 @@ body::before {
 }
 
 .hero p {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-  max-width: 600px;
-  letter-spacing: 0.03em;
-  line-height: 1.6;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  font-size: 1.1rem;
+  margin-bottom: 1.6rem;
+  max-width: 720px;
+  letter-spacing: 0.01em;
+  line-height: 1.7;
+  color: var(--muted);
 }
 
 /* 美化搜索区域 */
@@ -216,34 +188,32 @@ body::before {
   display: flex;
   width: 100%;
   position: relative;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  border-radius: 50px;
-  background: white;
-  transition: all 0.3s ease;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
 }
 
-.hero-search:hover, .hero-search:focus-within {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
-}
+.hero-search:hover, .hero-search:focus-within { transform: translateY(-1px); box-shadow: var(--shadow-md); border-color: rgba(52,152,219,.35); }
 
 .search-icon {
   position: absolute;
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  color: #aaa;
+  color: #9aa4b2;
   z-index: 2;
 }
 
 .hero-search-input {
   flex: 1;
-  padding: 1rem 1rem 1rem 50px;
-  font-size: 1.1rem;
+  padding: 0.9rem 1rem 0.9rem 52px;
+  font-size: 1.05rem;
   border: none;
-  border-radius: 50px 0 0 50px;
+  border-radius: 14px 0 0 14px;
   outline: none;
-  color: #333;
+  color: var(--text);
   background: transparent;
   box-shadow: none;
   z-index: 1;
@@ -253,30 +223,7 @@ body::before {
   color: #aaa;
 }
 
-.hero-search-button {
-  padding: 0.8rem 2rem;
-  font-size: 1.1rem;
-  background: linear-gradient(45deg, #e74c3c, #c0392b);
-  color: white;
-  border: none;
-  border-radius: 0 50px 50px 0;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.1);
-}
-
-.hero-search-button:hover {
-  background: linear-gradient(45deg, #c0392b, #e74c3c);
-  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
-}
-
-.hero-search-button:active {
-  transform: translateY(1px);
-  box-shadow: inset 0 3px 3px rgba(0, 0, 0, 0.1);
-}
+/* Button now uses global .search-button styles */
 
 /* 热门搜索标签 */
 .search-tags {
@@ -284,26 +231,27 @@ body::before {
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.7rem;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  color: var(--muted);
 }
 
 .search-tags span {
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .search-tags a {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--primary);
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.2rem 0.8rem;
-  border-radius: 20px;
-  transition: all 0.2s;
+  background: rgba(52,152,219,0.08);
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  transition: all 0.15s ease;
+  border: 1px solid rgba(52,152,219,0.25);
 }
 
 .search-tags a:hover {
-  background: rgba(255, 255, 255, 0.3);
-  color: white;
+  background: rgba(52,152,219,0.14);
+  color: var(--primary);
   transform: translateY(-1px);
 }
 
@@ -315,17 +263,18 @@ body::before {
 }
 
 .feature-card {
-  background-color: white;
+  background-color: #fff;
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .feature-icon {

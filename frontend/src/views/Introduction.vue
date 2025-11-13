@@ -147,7 +147,6 @@
 </script>
 
 <style>
-/* 保持全屏背景样式一致 */
 html, body, #app {
   margin: 0;
   padding: 0;
@@ -157,26 +156,9 @@ html, body, #app {
 }
 
 body {
-  background-image: url('/images/background.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  background: #ffffff;
   position: relative;
   font-family: "Microsoft YaHei", "Hiragino Sans GB", "STHeiti", "SimHei", sans-serif;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('/images/background.jpg');
-  background-size: cover;
-  background-position: center;
-  z-index: -1;
 }
 
 /* 介绍页面样式 */
