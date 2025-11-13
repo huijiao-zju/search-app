@@ -44,9 +44,9 @@ public class ResourceSearchService {
             orders.add(cb.desc(root.get("createdAt")));
         } else { // relevance
             // CASE WHEN title matches any token THEN 0 ELSE 1 END, createdAt DESC
-            Expression<Integer> caseExpr = cb.selectCase()
-                    .when(titleAnyMatch(cb, root, tokens), 0)
-                    .otherwise(1);
+            Expression<Integer> caseExpr = cb.<Integer>selectCase()
+            .when(titleAnyMatch(cb, root, tokens), 0)
+            .otherwise(1);
             orders.add(cb.asc(caseExpr));
             orders.add(cb.desc(root.get("createdAt")));
         }
