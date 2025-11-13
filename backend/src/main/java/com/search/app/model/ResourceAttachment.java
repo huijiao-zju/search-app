@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.search.app.model.enums.AttachmentCategory;
 
 @Entity
 @Table(name = "resource_attachments")
@@ -31,5 +32,8 @@ public class ResourceAttachment {
 
     @Column(nullable = false)
     private long size;
-}
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    private AttachmentCategory category = AttachmentCategory.NOTE;
+}

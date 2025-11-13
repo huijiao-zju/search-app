@@ -10,5 +10,5 @@ public class AttachmentResponse {
     private String name;
     private String contentType;
     private long size;
+    private String category; // NOTE / EXAM
 }
-

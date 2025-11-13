@@ -13,9 +13,19 @@
         <label for="files">附件</label>
         <input id="files" type="file" multiple @change="onFiles" />
         <ul v-if="selectedFiles.length" class="file-list">
-          <li v-for="(f, i) in selectedFiles" :key="i">
-            {{ f.name }} ({{ formatSize(f.size) }})
-            <span v-if="f.size > MAX_BYTES" class="bad"> 超过50MB</span>
+          <li v-for="(f, i) in selectedFiles" :key="i" class="file-row">
+            <div class="file-main">
+              <strong>{{ f.name }}</strong>
+              <span class="muted">{{ formatSize(f.size) }}</span>
+              <span v-if="f.size > MAX_BYTES" class="bad"> 超过50MB</span>
+            </div>
+            <div class="file-meta">
+              <label>分类</label>
+              <select v-model="fileCategories[i]">
+                <option value="NOTE">学习笔记</option>
+                <option value="EXAM">历年卷</option>
+              </select>
+            </div>
           </li>
         </ul>
       </div>
@@ -36,6 +46,7 @@ import axios from 'axios'
 const MAX_BYTES = 50 * 1024 * 1024
 const title = ref('')
 const selectedFiles = ref([])
+const fileCategories = ref([])
 const submitting = ref(false)
 const error = ref('')
 const success = ref(null)
@@ -49,6 +60,7 @@ const invalid = computed(() => {
 const onFiles = (e) => {
   const files = Array.from(e.target.files || [])
   selectedFiles.value = files
+  fileCategories.value = files.map(() => 'NOTE')
 }
 
 const formatSize = (n) => {
@@ -66,9 +78,10 @@ const submit = async () => {
   }
   const form = new FormData()
   form.append('title', title.value.trim())
-  for (const f of selectedFiles.value) {
+  selectedFiles.value.forEach((f, idx) => {
     form.append('files', f)
-  }
+    form.append('categories', fileCategories.value[idx] || 'NOTE')
+  })
   submitting.value = true
   try {
     const res = await axios.post('/api/resources', form, {
@@ -78,6 +91,7 @@ const submit = async () => {
     // 清空
     title.value = ''
     selectedFiles.value = []
+    fileCategories.value = []
   } catch (e) {
     error.value = e.response?.data || '上传失败，请稍后再试'
   } finally {
@@ -94,7 +108,11 @@ h2 { margin: 0 0 0.5rem; }
 .form-group { display: flex; flex-direction: column; gap: .5rem; }
 input[type="text"] { padding: .6rem; border: 1px solid #ddd; border-radius: 4px; }
 input[type="file"] { padding: .4rem 0; }
-.file-list { margin: 0; padding-left: 1.2rem; color: #555; }
+.file-list { margin: 0; padding-left: 0; color: #555; list-style: none; display: flex; flex-direction: column; gap: .6rem; }
+.file-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; border: 1px solid var(--border); padding: .6rem .75rem; border-radius: 8px; }
+.file-main .muted { color: #888; margin-left: .5rem; font-size: .9em; }
+.file-meta { display: flex; align-items: center; gap: .4rem; }
+.file-meta select { padding: .35rem .5rem; border: 1px solid #ddd; border-radius: 6px; }
 .actions { display: flex; align-items: center; gap: 1rem; }
 button { background: #3498db; color: #fff; border: 0; padding: .6rem 1rem; border-radius: 4px; cursor: pointer; }
 button:disabled { background: #95a5a6; cursor: not-allowed; }

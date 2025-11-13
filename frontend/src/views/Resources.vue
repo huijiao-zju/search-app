@@ -18,6 +18,7 @@
         <ul class="attachments">
           <li v-for="a in r.attachments" :key="a.id" class="attachment">
             <span class="name">{{ a.name }}</span>
+            <span class="cat" :class="a.category">{{ a.category === 'EXAM' ? '历年卷' : '学习笔记' }}</span>
             <span class="size">{{ formatSize(a.size) }}</span>
             <button class="dl" @click="download(r.id, a)">下载</button>
           </li>
@@ -101,4 +102,7 @@ onMounted(fetchList)
 .size { color: #888; }
 .dl { background: #2ecc71; color: #fff; border: 0; border-radius: 4px; padding: .3rem .6rem; cursor: pointer; }
 .dl:hover { background: #27ae60; }
+.cat { font-size: .8rem; padding: .15rem .4rem; border-radius: 999px; border: 1px solid #e5e7eb; background: #f8fafc; color: #374151; }
+.cat.EXAM { border-color: rgba(231, 76, 60, .3); background: rgba(231, 76, 60, .08); color: #c0392b; }
+.cat.NOTE { border-color: rgba(52, 152, 219, .3); background: rgba(52,152,219,.08); color: #2980b9; }
 </style>

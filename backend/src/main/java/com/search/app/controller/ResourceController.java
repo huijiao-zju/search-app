@@ -5,6 +5,7 @@ import com.search.app.dto.PageResponse;
 import com.search.app.dto.ResourceResponse;
 import com.search.app.model.CourseResource;
 import com.search.app.model.ResourceAttachment;
+import com.search.app.model.enums.AttachmentCategory;
 import com.search.app.repository.CourseResourceRepository;
 import com.search.app.repository.ResourceAttachmentRepository;
 import com.search.app.service.FileStorageService;
@@ -53,7 +54,8 @@ public class ResourceController {
     @Transactional
     public ResponseEntity<?> upload(
             @RequestPart("title") @NotBlank String title,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "categories", required = false) List<String> categories
     ) throws IOException {
         if (title == null || title.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("标题不能为空");
@@ -67,7 +69,8 @@ public class ResourceController {
         resource = resourceRepository.save(resource);
 
         List<AttachmentResponse> attachmentResponses = new ArrayList<>();
-        for (MultipartFile file : files) {
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile file = files.get(i);
             FileStorageService.StoredFile saved = storageService.store(file, MAX_FILE_SIZE);
             ResourceAttachment att = new ResourceAttachment();
             att.setResource(resource);
@@ -75,9 +78,11 @@ public class ResourceController {
             att.setStoredName(saved.storedName());
             att.setContentType(saved.contentType());
             att.setSize(saved.size());
+            AttachmentCategory cat = resolveCategory(categories, i);
+            att.setCategory(cat);
             attachmentRepository.save(att);
 
-            attachmentResponses.add(new AttachmentResponse(att.getId(), att.getOriginalName(), att.getContentType(), att.getSize()));
+            attachmentResponses.add(new AttachmentResponse(att.getId(), att.getOriginalName(), att.getContentType(), att.getSize(), cat.name()));
         }
 
         ResourceResponse resp = new ResourceResponse(resource.getId(), resource.getTitle(), resource.getCreatedAt(), attachmentResponses);
@@ -90,7 +95,10 @@ public class ResourceController {
                 r.getId(),
                 r.getTitle(),
                 r.getCreatedAt(),
-                r.getAttachments().stream().map(a -> new AttachmentResponse(a.getId(), a.getOriginalName(), a.getContentType(), a.getSize())).collect(Collectors.toList())
+                r.getAttachments().stream().map(a -> new AttachmentResponse(
+                        a.getId(), a.getOriginalName(), a.getContentType(), a.getSize(),
+                        (a.getCategory() != null ? a.getCategory().name() : AttachmentCategory.NOTE.name())
+                )).collect(Collectors.toList())
         )).collect(Collectors.toList());
     }
 
@@ -113,10 +121,24 @@ public class ResourceController {
 
         List<ResourceResponse> content = resultPage.getContent().stream().map(r -> new ResourceResponse(
                 r.getId(), r.getTitle(), r.getCreatedAt(),
-                r.getAttachments().stream().map(a -> new AttachmentResponse(a.getId(), a.getOriginalName(), a.getContentType(), a.getSize())).collect(Collectors.toList())
+                r.getAttachments().stream().map(a -> new AttachmentResponse(
+                        a.getId(), a.getOriginalName(), a.getContentType(), a.getSize(),
+                        (a.getCategory() != null ? a.getCategory().name() : AttachmentCategory.NOTE.name())
+                )).collect(Collectors.toList())
         )).collect(Collectors.toList());
 
         return new PageResponse<>(content, pageIndex + 1, size, resultPage.getTotalElements(), resultPage.getTotalPages());
+    }
+
+    private AttachmentCategory resolveCategory(List<String> categories, int index) {
+        if (categories == null || categories.isEmpty() || index >= categories.size()) return AttachmentCategory.NOTE;
+        String raw = categories.get(index);
+        if (raw == null) return AttachmentCategory.NOTE;
+        String v = raw.trim().toUpperCase();
+        // Accept English keys and common Chinese labels
+        if (v.equals("NOTE") || v.equals("STUDY_NOTE") || v.contains("笔记")) return AttachmentCategory.NOTE;
+        if (v.equals("EXAM") || v.equals("PAST_PAPER") || v.contains("历年") || v.contains("试卷")) return AttachmentCategory.EXAM;
+        return AttachmentCategory.NOTE;
     }
 
     @GetMapping("/{id}/download/{attachmentId}")

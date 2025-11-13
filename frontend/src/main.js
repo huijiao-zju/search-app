@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from './stores/user'
 import axios from 'axios'
 import './style.css'
 import App from './App.vue'
@@ -56,4 +57,14 @@ router.beforeEach((to, from, next) => {
 const app = createApp(App)
 app.use(pinia)
 app.use(router)
+
+// If a token exists (e.g., after刷新), fetch profile to show username
+try {
+  const store = useUserStore()
+  if (token) {
+    store.fetchUserProfile()
+  }
+} catch (e) {
+  // ignore; pinia not ready or other transient issues
+}
 app.mount('#app')

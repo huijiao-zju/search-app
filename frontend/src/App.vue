@@ -17,7 +17,17 @@
         <router-link v-if="!isLoggedIn" to="/register" class="nav-link">注册</router-link>
         <router-link v-if="isLoggedIn" to="/resources" class="nav-link">资源</router-link>
         <router-link v-if="isLoggedIn" to="/upload" class="nav-link">上传</router-link>
-        <a v-if="isLoggedIn" @click="logout" class="nav-link">退出</a>
+        <div v-if="isLoggedIn" class="user-area">
+          <button class="user-badge" @click="menuOpen = !menuOpen">
+            {{ currentUser?.username || currentUser?.email }}
+            <svg class="caret" width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div v-if="menuOpen" class="user-menu">
+            <button class="menu-item danger" @click="logoutAndClose">退出登录</button>
+          </div>
+        </div>
       </nav>
     </header>
     <main>
@@ -39,6 +49,8 @@ const userStore = useUserStore();
 const searchQuery = ref('');
 
 const isLoggedIn = computed(() => userStore.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
+const menuOpen = ref(false);
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
@@ -53,6 +65,7 @@ const logout = () => {
   userStore.logout();
   router.push('/');
 };
+const logoutAndClose = () => { menuOpen.value = false; logout(); };
 </script>
 
 <style>
@@ -130,6 +143,12 @@ nav {
   background-color: rgba(255, 255, 255, 0.22);
 }
 
+.nav-user {
+  color: #fff;
+  opacity: 0.95;
+  padding: 0.5rem 0.6rem;
+}
+
 main {
   flex: 1;
   padding: 2rem;
@@ -144,4 +163,44 @@ footer {
   background-color: #333;
   color: #fff;
 }
+
+/* User area (right side) */
+.user-area { position: relative; margin-left: .25rem; }
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .45rem .7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  cursor: pointer;
+}
+.user-badge .caret { opacity: .9; }
+
+.user-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #fff;
+  color: #333;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.10);
+  min-width: 140px;
+  padding: .35rem;
+  z-index: 200;
+}
+.menu-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: .55rem .65rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.menu-item:hover { background: rgba(0,0,0,.04); }
+.menu-item.danger { color: #e74c3c; }
 </style>
